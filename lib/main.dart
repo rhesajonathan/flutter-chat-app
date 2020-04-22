@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final List<DocumentSnapshot> documents = result.documents;
 
       if(documents.length == 0){
-        Firestore.instance.collection('users').document(firebaseUser.uid).setData({
+        Firestore.instance.collection('users').document(firebaseUser.uid).setData(<String,dynamic>{
           'nickname': firebaseUser.displayName,
           'photoUrl': firebaseUser.photoUrl,
           'id': firebaseUser.uid,
@@ -72,13 +72,13 @@ class _LoginScreenState extends State<LoginScreen> {
       else
       {
         print('success');
-        await prefs.setString('id', documents[0]['id']);
-        await prefs.setString('nickname', documents[0]['nickname']);
-        await prefs.setString('photoUrl', documents[0]['photoUrl']);
-        await prefs.setString('aboutMe', documents[0]['aboutMe']);
+        await prefs.setString('id', documents[0]['id'].toString());
+        await prefs.setString('nickname', documents[0]['nickname'].toString());
+        await prefs.setString('photoUrl', documents[0]['photoUrl'].toString());
+        await prefs.setString('aboutMe', documents[0]['aboutMe'].toString());
       }
-      Fluttertoast.showToast(msg: "Sign in success");
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen(currentUserId: firebaseUser.uid)));
+      Fluttertoast.showToast(msg: 'Sign in success');
+     Navigator.pushReplacement<BuildContext,dynamic>(context, MaterialPageRoute(builder: (BuildContext context) => HomeScreen(currentUserId: firebaseUser.uid)));
     }
     else
     {
@@ -95,25 +95,25 @@ class _LoginScreenState extends State<LoginScreen> {
           color:Colors.amber,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children:[
+            children:<Widget>[
                 Image.asset(
                   'images/logo.png',
                   width:200
                 ),
-                Text(
+                const Text(
                   'Chatty',
                   style:TextStyle(
                     fontSize: 30
                   )
                 ),
                 Container(
-                  margin:EdgeInsets.only(top:20),
+                  margin:const EdgeInsets.only(top:20),
                   child:FlatButton(
                     onPressed: handleSignIn, 
                     color:Colors.black,
                     textColor: Colors.amber,
-                    padding:EdgeInsets.symmetric(vertical:10,horizontal:50),
-                    child: Text('Login')
+                    padding:const EdgeInsets.symmetric(vertical:10,horizontal:50),
+                    child:const Text('Login')
                     ),
                 )
               ]

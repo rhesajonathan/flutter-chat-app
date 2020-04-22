@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -22,7 +21,7 @@ class ChatScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title:Text(
-          this.nickName,
+          nickName,
           style:TextStyle(color: Colors.white),
           ),
         backgroundColor: Colors.amber,
@@ -36,7 +35,7 @@ class ChatContent extends StatefulWidget {
 
   final String photoUrl;
   final String peerId;
-  ChatContent(this.photoUrl,this.peerId);
+  const ChatContent(this.photoUrl,this.peerId);
 
   @override
   _ChatContentState createState() => _ChatContentState();
@@ -48,20 +47,21 @@ class _ChatContentState extends State<ChatContent> {
 
   String groupChatId;
   SharedPreferences prefs;
-  var listMessage;
+  dynamic listMessage;
 
   File imageFile;
 
 
-  final TextEditingController textEditingController = new TextEditingController();
+  final TextEditingController textEditingController = TextEditingController();
 
+  @override
   void initState(){
     super.initState();
 
     readLocal();
   }
 
-  readLocal() async{
+  void readLocal() async{
     prefs = await SharedPreferences.getInstance();
     id = prefs.getString('id') ?? '';
     String peerId = widget.peerId;
@@ -73,11 +73,11 @@ class _ChatContentState extends State<ChatContent> {
       groupChatId = '$peerId-$id';
     }
 
-    Firestore.instance.collection('users').document(id).updateData({'chattingWith':widget.peerId});
+    Firestore.instance.collection('users').document(id).updateData(<String,dynamic>{'chattingWith': widget.peerId });
     setState(() {});
   }
 
-  Future getImage() async{
+  void getImage() async{
     imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
 
     if(imageFile != null){
@@ -90,13 +90,13 @@ class _ChatContentState extends State<ChatContent> {
     StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask = reference.putFile(imageFile);
     StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
-    storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl){
+    storageTaskSnapshot.ref.getDownloadURL().then<dynamic>((dynamic downloadUrl){
       onSendMessage(downloadUrl, 1);
     });
 
   }
 
-  void onSendMessage(String content, int type) {
+  void onSendMessage(dynamic content, int type) {
     // type: 0 = text, 1 = image, 2 = sticker
     if (content.trim() != '') {
       textEditingController.clear();
@@ -110,7 +110,7 @@ class _ChatContentState extends State<ChatContent> {
       Firestore.instance.runTransaction((transaction) async {
         await transaction.set(
           documentReference,
-          {
+          <String,dynamic>{
             'idFrom': id,
             'idTo': widget.peerId,
             'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
@@ -127,7 +127,7 @@ class _ChatContentState extends State<ChatContent> {
   @override
   Widget build(BuildContext context) {
     return Column(
-     children: [
+     children: <Widget>[
         _buildChatList(),
         _buildInput()
      ]
@@ -149,7 +149,7 @@ class _ChatContentState extends State<ChatContent> {
       child: Row(
         children: <Widget>[
           Material(
-            child: new Container(
+            child: Container(
               child: IconButton(
                 icon:Icon(Icons.image), 
                 onPressed: getImage,)
@@ -189,12 +189,12 @@ class _ChatContentState extends State<ChatContent> {
           .orderBy('timestamp', descending: true)
           .limit(20)
           .snapshots(),
-        builder:(context,snapshot){
+        builder:(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
             print(groupChatId);
             listMessage = snapshot.data.documents;
             return ListView.builder(
-              padding: EdgeInsets.all(10),
-              itemBuilder:(context,i) => _buildItem(i,snapshot.data.documents[i]), 
+              padding: const EdgeInsets.all(10),
+              itemBuilder:(BuildContext context,int i) => _buildItem(i,snapshot.data.documents[i]), 
               itemCount: snapshot.data.documents.length,
               reverse: true,
               );
@@ -219,22 +219,22 @@ class _ChatContentState extends State<ChatContent> {
     return document['type'] == 0 ? 
       Container(
         width:200,
-        child:Text(document['content']),
-        padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-        margin: EdgeInsets.only(left:150,top:15),
+        child: Text(document['content'].toString()),
+        padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+        margin: const EdgeInsets.only(left:150,top:15),
         decoration: BoxDecoration(color:Colors.grey[350],borderRadius:BorderRadius.circular(8)),
       )
     :
       Container(
         width:200,
         height: 200,
-        margin: EdgeInsets.only(left:150,top:15),
+        margin: const EdgeInsets.only(left:150,top:15),
         child:Material(
           child:CachedNetworkImage(
-            imageUrl: document['content'],
+            imageUrl: document['content'].toString(),
             fit:BoxFit.cover,
           ),
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
           clipBehavior: Clip.hardEdge,
         )
       );
@@ -245,14 +245,14 @@ class _ChatContentState extends State<ChatContent> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children:[
         Container(
-          margin:EdgeInsets.only(top:15),
+          margin:const EdgeInsets.only(top:15),
           child:ProfilePhoto(widget.photoUrl, 'small')
         ),
         Container(
           width:200,
-          child:Text(document['content']),
-          padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-          margin: EdgeInsets.only(left:10,top:15),
+          child:Text(document['content'].toString()),
+          padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+          margin: const EdgeInsets.only(left:10,top:15),
           decoration: BoxDecoration(color:Colors.amber,borderRadius:BorderRadius.circular(8)),
         )
       ]
@@ -261,13 +261,13 @@ class _ChatContentState extends State<ChatContent> {
     Container(
       width:200,
       height: 200,
-      margin: EdgeInsets.only(left:10,top:15),
+      margin: const EdgeInsets.only(left:10,top:15),
       child:Material(
         child:CachedNetworkImage(
-          imageUrl: document['content'],
+          imageUrl: document['content'].toString(),
           fit:BoxFit.cover,
         ),
-        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
         clipBehavior: Clip.hardEdge,
       )
     );

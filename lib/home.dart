@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body:Container(
         child:StreamBuilder(
           stream: Firestore.instance.collection('users').snapshots(),
-          builder:(context,snapshot){
+          builder:(BuildContext context,AsyncSnapshot<QuerySnapshot> snapshot){
             return _buildContact(context,snapshot.data.documents);
           }
         )
@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildContact(BuildContext context, List<DocumentSnapshot> documents){
     return ListView.builder(
-      itemBuilder: (context, i){
+      itemBuilder: (BuildContext context, int i){
         return _buildRow(context,documents[i]);
       },
       itemCount: documents.length,
@@ -56,14 +56,18 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     else{
       return Column(
-        children:[
+        children:<Widget>[
           ListTile(
-            leading: ProfilePhoto(document['photoUrl'],'medium'),
-            title: Text(document['nickname']),
-            subtitle: Text('Here is a second line'),
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(document['nickname'],document['id'],document['photoUrl']))),
+            leading: ProfilePhoto(document['photoUrl'].toString(),'medium'),
+            title: Text(document['nickname'].toString()),
+            subtitle: const Text('Here is a second line'),
+            onTap: () => Navigator.push<dynamic>(context, 
+                            MaterialPageRoute<dynamic>(
+                              builder: (BuildContext context) => ChatScreen(document['nickname'].toString(),document['id'].toString(),document['photoUrl'].toString())
+                            )
+                          ),
           ),
-          Divider()
+          const Divider()
         ]
       );
     }
